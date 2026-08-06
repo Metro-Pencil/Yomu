@@ -7,8 +7,8 @@
 <meta name="description" content="A private, offline-first manga reader for your own CBZ/ZIP and PDF chapters.">
 <meta name="theme-color" content="#121014">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icons/favicon-64.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Yomu">
@@ -603,13 +603,13 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 
 <!-- pdf.js (bundled locally so PDF-chapter support doesn't depend on a CDN — loaded lazily/independently, the app works fine without it unless a PDF is opened) -->
 <script type="module">
-  import * as pdfjsLib from "./vendor/pdfjs/pdf.min.mjs";
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "./vendor/pdfjs/pdf.worker.min.mjs";
+  import * as pdfjsLib from "./pdf.min.mjs";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdf.worker.min.mjs";
   window.pdfjsLib = pdfjsLib;
   window.dispatchEvent(new Event("pdfjs-ready"));
 </script>
 <!-- zip.js (classic global build — supports reading & writing password-protected zips) -->
-<script src="https://cdn.jsdelivr.net/npm/@zip.js/[email protected]/dist/zip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.70/dist/zip.min.js"></script>
 
 <script>
 (() => {

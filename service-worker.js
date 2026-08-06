@@ -11,13 +11,13 @@ const SHELL_FILES = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/icon-maskable-512.png",
-  "./icons/apple-touch-icon.png",
-  "./icons/favicon-64.png",
-  "./vendor/pdfjs/pdf.min.mjs",
-  "./vendor/pdfjs/pdf.worker.min.mjs"
+  "./icon-192.png",
+  "./icon-512.png",
+  "./icon-maskable-512.png",
+  "./apple-touch-icon.png",
+  "./favicon-64.png",
+  "./pdf.min.mjs",
+  "./pdf.worker.min.mjs"
 ];
 
 self.addEventListener("install", (event) => {

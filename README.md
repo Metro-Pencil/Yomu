@@ -29,15 +29,14 @@ straight off GitHub Pages for free.
 
 ## Deploying to GitHub Pages
 
-1. **Unzip** this archive somewhere on your computer. You should see
-   `index.html`, `manifest.json`, `service-worker.js`, an `icons/` folder and
-   a `vendor/` folder — don't rename or nest these, GitHub Pages needs to see
-   `index.html` at the root of what it serves.
+1. **Unzip** this archive somewhere on your computer. You should see one flat
+   folder with `index.html`, `manifest.json`, `service-worker.js`, a handful
+   of icon `.png` files and two `pdf.*.mjs` files — no subfolders, so it's
+   safe to select-all and upload however your tool of choice lets you.
 2. Create a new **public** repository on GitHub (any name — e.g. `yomu`).
-3. Upload the *contents* of the unzipped folder to the repo root — either:
-   - On the repo's GitHub page: **Add file → Upload files**, then drag in
-     `index.html`, `manifest.json`, `service-worker.js`, the whole `icons`
-     folder and the whole `vendor` folder, and commit; or
+3. Upload every file in that folder to the repo root — either:
+   - On the repo's GitHub page: **Add file → Upload files**, drag in all the
+     files (or use "choose your files" and select them all), then commit; or
    - With git: `git add . && git commit -m "Add Yomu" && git push`
 4. In the repo, go to **Settings → Pages**. Under "Build and deployment",
    set **Source: Deploy from a branch**, branch **main**, folder **/ (root)**,
@@ -65,7 +64,8 @@ from a GitHub Pages *project* URL (`username.github.io/repo-name/`).
   time — after that the pages are stored unlocked in your own IndexedDB, so
   re-reading or jumping to the next chapter never asks again.
 - **PDF chapters** are rendered with [pdf.js](https://mozilla.github.io/pdf.js/),
-  which is bundled directly in `vendor/pdfjs/` so that feature works fully
+  which is bundled directly alongside the app (`pdf.min.mjs` /
+  `pdf.worker.min.mjs`) so that feature works fully
   offline with no CDN dependency.
 - Filename parsing is a best-effort heuristic. If a file doesn't match a
   recognizable "name + chapter number" pattern it's filed under its full name
