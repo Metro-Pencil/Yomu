@@ -601,6 +601,34 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 
 <input type="file" id="fileInput" accept=".zip,.cbz,.pdf" multiple style="display:none;">
 
+<!-- Map/WeakMap "upsert" polyfill (getOrInsert / getOrInsertComputed).
+     The bundled pdf.js build calls these TC39-proposal methods internally
+     (e.g. inside getOptionalContentConfig()), but no shipping browser engine
+     implements them natively yet — without this shim, PDF page rendering
+     throws "getOrInsertComputed is not a function" and every PDF chapter
+     fails to render. Safe to remove once browsers ship the real thing,
+     since this only defines the methods when they're missing. -->
+<script>
+(() => {
+  function install(proto) {
+    if (!proto.getOrInsert) {
+      proto.getOrInsert = function (key, value) {
+        if (!this.has(key)) this.set(key, value);
+        return this.get(key);
+      };
+    }
+    if (!proto.getOrInsertComputed) {
+      proto.getOrInsertComputed = function (key, callback) {
+        if (!this.has(key)) this.set(key, callback(key));
+        return this.get(key);
+      };
+    }
+  }
+  install(Map.prototype);
+  install(WeakMap.prototype);
+})();
+</script>
+
 <!-- pdf.js (bundled locally so PDF-chapter support doesn't depend on a CDN — loaded lazily/independently, the app works fine without it unless a PDF is opened) -->
 <script type="module">
   import * as pdfjsLib from "./pdf.min.mjs";
@@ -885,22 +913,36 @@ async function ensurePdfJs() {
     window.addEventListener("pdfjs-ready", () => { clearTimeout(t); resolve(window.pdfjsLib); }, { once: true });
   });
 }
-async function rasterizePdfBlob(blob) {
+async function rasterizePdfBlob(blob, onProgress) {
   const pdfjsLib = await ensurePdfJs();
   const buf = await blob.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const pages = [];
-  const scale = 2;
+  // Cap the rendered resolution instead of a flat scale=2: scanned manga
+  // pages are frequently 2000-3000px+ natively, so scale=2 was producing
+  // 4000-6000px canvases (and matching WebP encode times + IndexedDB writes)
+  // for every single page, which is what made big PDF chapters feel like
+  // they'd hung. ~1600px on the long edge is already sharper than most
+  // phone/tablet screens need for reading.
+  const MAX_EDGE = 1600;
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale });
+    const nativeViewport = page.getViewport({ scale: 1 });
+    const longestEdge = Math.max(nativeViewport.width, nativeViewport.height);
+    const scale = Math.min(2, MAX_EDGE / longestEdge) || 1;
+    const viewport = page.getViewport({ scale: Math.max(scale, 0.5) });
     const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+    canvas.width = Math.round(viewport.width);
+    canvas.height = Math.round(viewport.height);
     const ctx = canvas.getContext("2d");
     await page.render({ canvasContext: ctx, viewport }).promise;
     const pageBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.9));
     pages.push(pageBlob || await new Promise((r) => canvas.toBlob(r, "image/png")));
+    canvas.width = canvas.height = 0; // release the backing bitmap right away
+    if (onProgress) onProgress(i, pdf.numPages);
+    // yield a tick so the progress update above actually paints and the
+    // tab doesn't feel frozen on very long chapters
+    await new Promise((r) => setTimeout(r, 0));
   }
   return pages;
 }
@@ -1226,7 +1268,13 @@ function openChapterMenu(chapterId) {
    UPLOAD ORCHESTRATION
    ============================================================ */
 async function handleFiles(fileList) {
-  const files = Array.from(fileList).filter((f) => /\.(zip|cbz|pdf)$/i.test(f.name));
+  const files = Array.from(fileList)
+    .filter((f) => /\.(zip|cbz|pdf)$/i.test(f.name))
+    // Read each file's name up front and sort the whole batch into ascending
+    // order before touching any of them — so a folder of chapters selected
+    // or dropped in whatever order the OS/browser handed them over still
+    // gets queued, shown, and indexed as 1, 2, 3… instead of scrambled.
+    .sort((a, b) => naturalCompare(a.name, b.name));
   if (!files.length) { toast("Choose a .zip, .cbz or .pdf file"); return; }
   openUploadSheet(files);
   const update = (file, patch) => updateUploadItem(files, file, patch);
@@ -1237,7 +1285,9 @@ async function handleFiles(fileList) {
       let pageBlobs;
       if (/\.pdf$/i.test(file.name)) {
         update(file, { status: "Rendering PDF pages…", progress: 35 });
-        pageBlobs = await rasterizePdfBlob(file);
+        pageBlobs = await rasterizePdfBlob(file, (done, total) => {
+          update(file, { status: `Rendering page ${done} of ${total}…`, progress: 35 + Math.round((done / total) * 55) });
+        });
       } else {
         pageBlobs = await extractZipFile(file, (name, wrong) => askPasswordModal(name, wrong));
       }

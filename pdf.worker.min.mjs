@@ -1,3 +1,26 @@
+/* --- injected polyfill: Map/WeakMap "upsert" methods (getOrInsert / getOrInsertComputed) ---
+   This worker script calls these TC39-proposal methods internally, but no shipping
+   browser engine implements them natively yet. Without this shim, PDF parsing/rendering
+   throws "getOrInsertComputed is not a function" inside the worker thread. Safe to
+   remove once engines ship the real thing (only defines the methods when missing). */
+(function () {
+  function install(proto) {
+    if (!proto.getOrInsert) {
+      proto.getOrInsert = function (key, value) {
+        if (!this.has(key)) this.set(key, value);
+        return this.get(key);
+      };
+    }
+    if (!proto.getOrInsertComputed) {
+      proto.getOrInsertComputed = function (key, callback) {
+        if (!this.has(key)) this.set(key, callback(key));
+        return this.get(key);
+      };
+    }
+  }
+  install(Map.prototype);
+  install(WeakMap.prototype);
+})();
 /**
  * @licstart The following is the entire license notice for the
  * JavaScript code in this page
