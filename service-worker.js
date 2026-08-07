@@ -1,6 +1,6 @@
 // Yomu service worker
 // Bump CACHE_VERSION whenever app-shell files change so clients pick up the update.
-const CACHE_VERSION = "yomu-v2"; // bumped: pdf.js crash fix + upload fixes below need to bust old caches
+const CACHE_VERSION = "yomu-v1.0.0"; // v1.0.0: a11y overhaul, upload review/edit step, perf fixes — see CHANGELOG.md
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

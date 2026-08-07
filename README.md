@@ -8,10 +8,12 @@ straight off GitHub Pages for free.
 
 - **Upload** `.zip` / `.cbz` (optionally password-protected) or `.pdf` chapter
   files. Drag-and-drop or pick from the file browser.
-- Reads each **file name** to work out the series and chapter number
+- Reads each **file name** to guess the series and chapter number
   automatically (handles things like `One Piece - Chapter 1050.zip`,
   `Naruto_070.5.cbz`, `[Group] Chainsaw Man - Ch 12 (2024).zip`, `Berserk Ch
-  364.zip`, etc).
+  364.zip`, etc), then shows you an editable review step — with autocomplete
+  against series you already have — so you can fix the series name or
+  chapter number before anything is actually added.
 - **Next chapter** jumps to the next-highest chapter number for that series —
   it copes fine with gaps (e.g. you have 1, 2, 4 but not 3).
 - Remembers **exactly where you left off**, per chapter and per series, and
@@ -67,14 +69,15 @@ from a GitHub Pages *project* URL (`username.github.io/repo-name/`).
   which is bundled directly alongside the app (`pdf.min.mjs` /
   `pdf.worker.min.mjs`) so that feature works fully
   offline with no CDN dependency.
-- Filename parsing is a best-effort heuristic. If a file doesn't match a
-  recognizable "name + chapter number" pattern it's filed under its full name
-  as a one-chapter series — you can rename the series afterward from its menu.
+- Filename parsing is a best-effort heuristic, but you get a chance to check
+  and correct its guess for every file — series name and chapter number are
+  both editable, right before anything is added — so a misparsed name never
+  has to mean deleting and re-uploading.
 
-## A known limitation
+## Versioning
 
-There's currently no way to manually move a chapter to a different series or
-correct a misdetected chapter number from within the app — if a file gets
-parsed wrong, the simplest fix is to delete it and re-upload with a clearer
-file name. Happy to add an edit option for this if it turns out to matter in
-practice.
+Yomu follows [semantic versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`),
+the same scheme GitHub release tags typically use — see `CHANGELOG.md` for
+what changed in each release. The current version is shown next to the app
+name on the library screen and in Settings → About.
+

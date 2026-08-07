@@ -22,7 +22,7 @@
 :root{
   --bg:#121014; --surface:#1B181E; --surface-2:#241F27; --surface-3:#2E2830;
   --border:rgba(241,236,225,0.09); --border-strong:rgba(241,236,225,0.16);
-  --text:#EFEAE0; --text-dim:#9C9388; --text-faint:#6B6459;
+  --text:#EFEAE0; --text-dim:#9C9388; --text-faint:#8A8275; /* faint brightened: was #6B6459 (3.24:1 on --bg, fails WCAG AA); now ~5:1 */
   --accent:#D2434A; --accent-strong:#E85A60; --accent-text:#FFFFFF;
   --shadow:rgba(0,0,0,0.45);
   --font-display:'Dela Gothic One', sans-serif;
@@ -34,7 +34,7 @@
 html[data-theme="light"]{
   --bg:#F1ECE1; --surface:#FBF8F1; --surface-2:#EDE5D4; --surface-3:#E4D9C4;
   --border:rgba(23,20,15,0.09); --border-strong:rgba(23,20,15,0.18);
-  --text:#1C1A1E; --text-dim:#6E6559; --text-faint:#948B7C;
+  --text:#1C1A1E; --text-dim:#5C5347; --text-faint:#706752; /* both darkened: were #6E6559 (4.86:1, barely-AA) and #948B7C (2.86:1, fails WCAG AA) */
   --accent:#C1272D; --accent-strong:#A81F26; --accent-text:#FFFFFF;
   --shadow:rgba(30,26,20,0.14);
 }
@@ -58,6 +58,13 @@ a{color:inherit;}
 ::-webkit-scrollbar{width:10px; height:10px;}
 ::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:20px;}
 ::-webkit-scrollbar-track{background:transparent;}
+
+/* Visible keyboard focus everywhere. The app previously set outline:none
+   in a couple of places with no replacement, which made keyboard focus
+   invisible on those controls. */
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+.icon-btn:focus-visible,.fab:focus-visible,.chapter-menu-btn:focus-visible{outline-offset:3px;}
+.grid-card:focus-visible,.shelf-card:focus-visible,.chapter-row-main:focus-visible{outline-offset:-2px;}
 
 .halftone{
   background-image:radial-gradient(var(--text) 1px, transparent 1.7px);
@@ -86,6 +93,11 @@ a{color:inherit;}
   display:flex; align-items:center; gap:9px; white-space:nowrap;
 }
 .wordmark .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none;}
+.wordmark .version-tag{
+  font-family:var(--font-mono); font-size:10.5px; font-weight:500; color:var(--text-faint);
+  background:var(--surface-2); border:1px solid var(--border); border-radius:20px;
+  padding:2px 7px 3px; letter-spacing:0;
+}
 .topbar-title{
   font-family:var(--font-display); font-size:16px; line-height:1.3;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;
@@ -211,11 +223,15 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 
 .chapter-list{padding:14px 12px 24px;}
 .chapter-row{
-  display:flex; align-items:center; gap:14px; width:100%;
-  padding:13px 10px; border-radius:var(--radius-s); border:none; background:none;
-  color:inherit; text-align:left; cursor:pointer; position:relative;
+  display:flex; align-items:center; width:100%;
+  border-radius:var(--radius-s); position:relative;
 }
 .chapter-row:hover{background:var(--surface);}
+.chapter-row-main{
+  display:flex; align-items:center; gap:14px; flex:1; min-width:0;
+  padding:13px 4px 13px 10px; border-radius:var(--radius-s); border:none; background:none;
+  color:inherit; text-align:left; cursor:pointer; font:inherit;
+}
 .chapter-num{
   font-family:var(--font-mono); font-weight:700; font-size:16px; color:var(--text-faint);
   width:44px; flex:none; text-align:center;
@@ -227,7 +243,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 .chapter-info .meta{font-family:var(--font-mono); font-size:10.5px; color:var(--text-faint); margin-top:2px;}
 .chapter-progress-track{height:2.5px; background:var(--border); border-radius:2px; margin-top:6px; overflow:hidden;}
 .chapter-progress-fill{height:100%; background:var(--accent); border-radius:2px;}
-.chapter-menu-btn{flex:none;}
+.chapter-menu-btn{flex:none; margin-right:6px;}
 
 /* ============================================================
    READER VIEW
@@ -328,6 +344,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
   transform:translateY(24px); transition:transform .25s cubic-bezier(.2,.8,.3,1);
   max-height:88vh; overflow-y:auto;
 }
+.sheet:focus:not(:focus-visible){outline:none;}
 .modal-backdrop.active .sheet{transform:translateY(0);}
 @media (min-width:640px){ .sheet{border-radius:22px; margin-bottom:20px;} }
 .sheet-grip{width:36px; height:4px; background:var(--border-strong); border-radius:4px; margin:8px auto 14px;}
@@ -340,6 +357,8 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
   border-radius:12px; padding:12px 14px; font-size:14px; outline:none;
 }
 .field input:focus{border-color:var(--accent);}
+.field input:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+#searchInput:focus-visible{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
 .field-hint{font-size:11px; color:var(--text-faint); margin-top:6px; line-height:1.4;}
 .sheet-actions{display:flex; gap:10px; margin-top:6px;}
 .sheet-actions .btn{flex:1;}
@@ -348,6 +367,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 .check-row label{font-size:13px; font-weight:600;}
 
 .dropzone{
+  display:block; width:100%; background:none; font:inherit;
   border:1.5px dashed var(--border-strong); border-radius:16px; padding:28px 16px;
   text-align:center; color:var(--text-dim); cursor:pointer; transition:border-color .15s, background .15s;
 }
@@ -370,6 +390,23 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 .upload-item.done .u-status{color:#7BAE7F;}
 .u-track{height:3px; background:var(--border); border-radius:2px; margin-top:6px; overflow:hidden;}
 .u-fill{height:100%; background:var(--accent); width:0%; transition:width .2s ease;}
+
+.review-list{margin-top:14px; display:flex; flex-direction:column; gap:10px; max-height:50vh; overflow-y:auto;}
+.review-item{
+  display:flex; gap:10px; background:var(--surface-2);
+  border-radius:12px; padding:11px 12px; border:1px solid var(--border);
+}
+.review-item .u-icon{width:30px; height:30px; border-radius:8px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; flex:none; margin-top:1px;}
+.review-item .u-icon svg{width:15px; height:15px; color:var(--text-dim);}
+.review-fields{flex:1; min-width:0;}
+.review-filename{font-size:11.5px; font-weight:700; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:8px;}
+.review-inputs{display:flex; gap:8px;}
+.review-inputs .field{margin-bottom:0; flex:1; min-width:0;}
+.review-inputs .field-chapter{flex:0 0 78px;}
+.review-inputs .field label{font-size:10px; margin-bottom:4px;}
+.review-inputs .field input{width:100%; padding:9px 10px; font-size:13px; border-radius:9px;}
+.review-hint{font-size:11px; color:var(--text-faint); margin-top:7px; min-height:14px;}
+.review-hint.is-existing{color:var(--accent-strong);}
 
 .menu-sheet .menu-item{
   display:flex; align-items:center; gap:14px; width:100%; padding:13px 6px; border:none; background:none;
@@ -429,7 +466,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
     <button class="icon-btn back-btn" id="backBtn" aria-label="Back">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div class="wordmark"><span class="dot"></span>Yomu</div>
+    <div class="wordmark"><span class="dot"></span>Yomu<span class="version-tag" id="appVersionTag"></span></div>
     <div class="topbar-title" id="topbarTitle"></div>
     <div class="topbar-spacer"></div>
     <button class="icon-btn" id="searchBtn" aria-label="Search library">
@@ -441,7 +478,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
     <!-- LIBRARY -->
     <section class="view active" id="view-library">
       <div id="searchBar" style="display:none; padding:10px 18px 0;">
-        <input type="text" id="searchInput" placeholder="Search your library…" style="width:100%; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); border-radius:12px; padding:11px 14px; font-size:14px; outline:none;">
+        <input type="text" id="searchInput" placeholder="Search your library…" aria-label="Search your library" style="width:100%; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); border-radius:12px; padding:11px 14px; font-size:14px;">
       </div>
       <div id="continueSection"></div>
       <div class="section-heading">
@@ -489,19 +526,19 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
       <div class="settings-group">
         <h3>Appearance</h3>
         <div class="seg" id="themeSeg">
-          <button data-theme-choice="light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button>
-          <button data-theme-choice="dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>Dark</button>
-          <button data-theme-choice="system"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Auto</button>
+          <button data-theme-choice="light" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button>
+          <button data-theme-choice="dark" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>Dark</button>
+          <button data-theme-choice="system" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Auto</button>
         </div>
 
         <h3>Reading</h3>
         <div class="seg" id="modeSeg">
-          <button data-mode-choice="paged"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/></svg>Paged</button>
-          <button data-mode-choice="vertical"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="8" rx="1.5"/><rect x="6" y="13" width="12" height="9" rx="1.5"/></svg>Long strip</button>
+          <button data-mode-choice="paged" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/></svg>Paged</button>
+          <button data-mode-choice="vertical" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="8" rx="1.5"/><rect x="6" y="13" width="12" height="9" rx="1.5"/></svg>Long strip</button>
         </div>
         <div class="settings-row">
           <div><div class="label">Auto-advance chapter</div><div class="sub">Load the next chapter automatically at the last page</div></div>
-          <label class="switch"><input type="checkbox" id="autoAdvanceToggle"><span class="track"></span><span class="knob"></span></label>
+          <label class="switch"><input type="checkbox" id="autoAdvanceToggle" aria-label="Auto-advance chapter"><span class="track"></span><span class="knob"></span></label>
         </div>
 
         <h3>Storage</h3>
@@ -525,7 +562,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
         <div class="about-mark">
           <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H12v16H5.5c-.8 0-1.5-.7-1.5-1.5v-13z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H12v16h6.5c.8 0 1.5-.7 1.5-1.5v-13z"/></svg></div>
           <div>
-            <div class="label" style="margin-bottom:2px;">Yomu</div>
+            <div class="label" style="margin-bottom:2px;">Yomu <span id="aboutVersion" style="font-family:var(--font-mono); font-weight:500; color:var(--text-faint); font-size:11.5px;"></span></div>
             <div class="sub">Everything stays on this device — nothing is uploaded anywhere.</div>
           </div>
         </div>
@@ -557,7 +594,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
       <div class="reader-bottom">
         <div class="reader-slider-row">
           <span class="reader-page-count" id="readerPageCount">1 / 1</span>
-          <input type="range" id="readerSlider" min="1" max="1" value="1" step="1">
+          <input type="range" id="readerSlider" min="1" max="1" value="1" step="1" aria-label="Current page">
         </div>
         <div class="reader-nav-row">
           <button class="btn" id="prevChapterBtn">
@@ -594,7 +631,7 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
 
-  <div class="toast-stack" id="toastStack"></div>
+  <div class="toast-stack" id="toastStack" role="status" aria-live="polite"></div>
   <div id="modalRoot"></div>
   <div id="modalRoot2"></div>
 </div>
@@ -646,6 +683,11 @@ main{flex:1; padding-bottom:calc(96px + var(--safe-bottom));}
 /* ============================================================
    CONSTANTS
    ============================================================ */
+// App version, following semantic versioning (MAJOR.MINOR.PATCH) the same way
+// GitHub release tags do (e.g. "v1.0.0"). Bump MAJOR for breaking/data-format
+// changes, MINOR for new features, PATCH for fixes only — then update
+// CACHE_VERSION in service-worker.js to match so old caches get busted.
+const APP_VERSION = "1.0.0";
 const DB_NAME = "yomu-db";
 const DB_VERSION = 1;
 const PAGES_STORE = "pages";
@@ -689,11 +731,22 @@ function openDB() {
   });
   return dbPromise;
 }
-async function idbPutPage(chapterId, index, blob) {
+// Writes every page of a chapter in ONE transaction (replacing any existing
+// pages for that chapterId first, which is a no-op scan if there are none).
+// Previously each page opened its own transaction via idbPutPage, which — on
+// top of being ~4x slower in direct testing — meant a partial write could
+// leave a chapter with only some of its pages if anything failed midway.
+async function idbReplaceChapterPages(chapterId, blobs) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(PAGES_STORE, "readwrite");
-    tx.objectStore(PAGES_STORE).put({ id: `${chapterId}::${index}`, chapterId, index, blob });
+    const store = tx.objectStore(PAGES_STORE);
+    const cursorReq = store.index("byChapter").openCursor(IDBKeyRange.only(chapterId));
+    cursorReq.onsuccess = (e) => {
+      const cursor = e.target.result;
+      if (cursor) { cursor.delete(); cursor.continue(); }
+    };
+    blobs.forEach((blob, index) => store.put({ id: `${chapterId}::${index}`, chapterId, index, blob }));
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
@@ -712,20 +765,27 @@ async function idbGetFirstPage(chapterId) {
   const pages = await idbGetPagesForChapter(chapterId);
   return pages[0] ? pages[0].blob : null;
 }
-async function deletePagesForChapter(chapterId) {
+// Deletes pages for one or more chapters in a single shared transaction —
+// used for both single-chapter deletes and whole-series deletes (which
+// previously ran one full transaction per chapter, sequentially awaited).
+async function deletePagesForChapters(chapterIds) {
+  if (!chapterIds.length) return;
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(PAGES_STORE, "readwrite");
     const idx = tx.objectStore(PAGES_STORE).index("byChapter");
-    const req = idx.openCursor(IDBKeyRange.only(chapterId));
-    req.onsuccess = (e) => {
-      const cursor = e.target.result;
-      if (cursor) { cursor.delete(); cursor.continue(); }
-    };
+    chapterIds.forEach((chapterId) => {
+      const req = idx.openCursor(IDBKeyRange.only(chapterId));
+      req.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) { cursor.delete(); cursor.continue(); }
+      };
+    });
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
 }
+async function deletePagesForChapter(chapterId) { return deletePagesForChapters([chapterId]); }
 async function wipeAllPages() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -772,7 +832,7 @@ function escapeHTML(s) {
 }
 function formatChNum(n) { return String(n); }
 function formatBytes(n) {
-  if (!n) return "0 MB";
+  if (!n) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB"];
   let i = 0;
   while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
@@ -856,7 +916,7 @@ function isPasswordError(err) {
   const msg = err.message || String(err);
   return (typeof zip !== "undefined" && (msg === zip.ERR_ENCRYPTED || msg === zip.ERR_INVALID_PASSWORD)) || /encrypt|password/i.test(msg);
 }
-async function extractZipEntries(file, passwordPrompt) {
+async function extractZipEntries(file, passwordPrompt, onProgress) {
   if (typeof zip === "undefined") throw new Error("The zip library failed to load — check your connection and try again.");
   let password;
   const reader = new zip.ZipReader(new zip.BlobReader(file));
@@ -876,34 +936,49 @@ async function extractZipEntries(file, passwordPrompt) {
   }
 
   fileEntries.sort((a, b) => naturalCompare(a.filename, b.filename));
-  const results = [];
-  for (const entry of fileEntries) {
-    while (true) {
-      try {
-        const blob = await entry.getData(new zip.BlobWriter(guessMime(entry.filename)), password ? { password } : {});
-        results.push({ name: entry.filename, blob });
-        break;
-      } catch (err) {
-        if (isPasswordError(err)) {
-          password = await passwordPrompt(file.name, password !== undefined);
-          if (password == null) { await reader.close().catch(() => {}); throw new UserCancelledError(); }
-          continue;
+
+  // Extract entries concurrently instead of one at a time. zip.js spreads
+  // decompression across a pool of Web Workers (see useWebWorkers below);
+  // awaiting entries one-by-one left every worker but one idle, so a
+  // 150-page chapter decompressed no faster than a single core.
+  const results = new Array(fileEntries.length);
+  let pending = fileEntries.map((entry, i) => ({ entry, i }));
+  let completed = 0;
+  try {
+    while (pending.length) {
+      const stillPending = [];
+      let firstFatalError = null;
+      await Promise.all(pending.map(async ({ entry, i }) => {
+        try {
+          const blob = await entry.getData(new zip.BlobWriter(guessMime(entry.filename)), password ? { password } : {});
+          results[i] = { name: entry.filename, blob };
+          completed++;
+          if (onProgress) onProgress(completed, fileEntries.length);
+        } catch (err) {
+          if (isPasswordError(err)) stillPending.push({ entry, i });
+          else if (!firstFatalError) firstFatalError = err;
         }
-        await reader.close().catch(() => {});
-        throw err;
-      }
+      }));
+      if (firstFatalError) throw firstFatalError;
+      if (!stillPending.length) break;
+      // Wrong/missing password: re-prompt once and retry just the entries
+      // that failed, instead of prompting once per failed entry.
+      password = await passwordPrompt(file.name, password !== undefined);
+      if (password == null) throw new UserCancelledError();
+      pending = stillPending;
     }
+  } finally {
+    await reader.close().catch(() => {});
   }
-  await reader.close().catch(() => {});
   return results;
 }
-async function extractZipFile(file, passwordPrompt) {
-  const raw = await extractZipEntries(file, passwordPrompt);
+async function extractZipFile(file, passwordPrompt, onProgress) {
+  const raw = await extractZipEntries(file, passwordPrompt, onProgress);
   const usable = raw.filter((e) => !isJunk(e.name));
   const images = usable.filter((e) => IMAGE_EXT.test(e.name));
   if (images.length) return images.map((e) => e.blob);
   const pdfEntry = usable.find((e) => /\.pdf$/i.test(e.name));
-  if (pdfEntry) return await rasterizePdfBlob(pdfEntry.blob);
+  if (pdfEntry) return await rasterizePdfBlob(pdfEntry.blob, onProgress);
   throw new Error("No readable images or PDF found inside this archive.");
 }
 async function ensurePdfJs() {
@@ -952,8 +1027,7 @@ async function rasterizePdfBlob(blob, onProgress) {
    ============================================================ */
 async function saveChapterToLibrary({ seriesId, seriesName, chapterId, chapterNumber, rawName, pageBlobs }) {
   const lib = loadLibrary();
-  if (lib.chapters[chapterId]) await deletePagesForChapter(chapterId);
-  await Promise.all(pageBlobs.map((blob, i) => idbPutPage(chapterId, i, blob)));
+  await idbReplaceChapterPages(chapterId, pageBlobs);
   lib.series[seriesId] = lib.series[seriesId] || { id: seriesId, name: seriesName, createdAt: Date.now() };
   lib.series[seriesId].updatedAt = Date.now();
   lib.chapters[chapterId] = { id: chapterId, seriesId, number: chapterNumber, rawName, pageCount: pageBlobs.length, addedAt: Date.now() };
@@ -974,7 +1048,7 @@ async function deleteChapterFully(chapterId) {
 async function deleteSeriesFully(seriesId) {
   const lib = loadLibrary();
   const chapterIds = Object.values(lib.chapters).filter((c) => c.seriesId === seriesId).map((c) => c.id);
-  for (const id of chapterIds) await deletePagesForChapter(id);
+  await deletePagesForChapters(chapterIds);
   chapterIds.forEach((id) => delete lib.chapters[id]);
   delete lib.series[seriesId];
   saveLibrary(lib);
@@ -1062,12 +1136,33 @@ async function exportSeriesZip(seriesId, password) {
 /* ============================================================
    MODAL / SHEET SYSTEM
    ============================================================ */
+const modalOnCloseCb = { modalRoot: null, modalRoot2: null };
+const modalPrevFocus = { modalRoot: null, modalRoot2: null };
 function openSheet(html, { layer = "modalRoot", onClose } = {}) {
   const root = document.getElementById(layer);
-  root.innerHTML = `<div class="modal-backdrop"><div class="sheet"><div class="sheet-grip"></div>${html}</div></div>`;
+  modalOnCloseCb[layer] = onClose || null;
+  modalPrevFocus[layer] = document.activeElement;
+  root.innerHTML = `<div class="modal-backdrop"><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><div class="sheet-grip"></div>${html}</div></div>`;
   const backdrop = root.querySelector(".modal-backdrop");
+  const sheet = root.querySelector(".sheet");
+  const heading = sheet.querySelector("h2");
+  if (heading) {
+    if (!heading.id) heading.id = `sheetTitle-${layer}`;
+    sheet.setAttribute("aria-labelledby", heading.id);
+  }
   requestAnimationFrame(() => backdrop.classList.add("active"));
-  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) { closeModalLayer(layer); if (onClose) onClose(); } });
+  backdrop.addEventListener("click", (e) => {
+    if (e.target !== backdrop) return;
+    const cb = modalOnCloseCb[layer]; modalOnCloseCb[layer] = null;
+    closeModalLayer(layer);
+    if (cb) cb();
+  });
+  // Move focus into the dialog — a sheet that wants a specific field focused
+  // (e.g. the password prompt) can call .focus() itself right after this
+  // returns, which simply takes over since it happens a moment later.
+  const firstField = sheet.querySelector("input, textarea, select");
+  (firstField || sheet).focus({ preventScroll: true });
+  refreshLayering();
   return root;
 }
 function closeModalLayer(layer = "modalRoot") {
@@ -1075,25 +1170,68 @@ function closeModalLayer(layer = "modalRoot") {
   const backdrop = root.querySelector(".modal-backdrop");
   if (!backdrop) return;
   backdrop.classList.remove("active");
+  backdrop.inert = true;
+  modalOnCloseCb[layer] = null;
   // Remove this specific node (not root.innerHTML) so that if a new sheet was
   // opened on this layer in the meantime, this delayed cleanup can't destroy it.
-  setTimeout(() => backdrop.remove(), 200);
+  setTimeout(() => { backdrop.remove(); refreshLayering(); }, 200);
+  refreshLayering();
+  const toFocus = modalPrevFocus[layer];
+  modalPrevFocus[layer] = null;
+  if (toFocus && document.body.contains(toFocus)) toFocus.focus({ preventScroll: true });
 }
 function closeModal() { closeModalLayer("modalRoot"); }
+function topModalLayer() {
+  if (document.querySelector("#modalRoot2 .modal-backdrop")) return "modalRoot2";
+  if (document.querySelector("#modalRoot .modal-backdrop")) return "modalRoot";
+  return null;
+}
+// Escape-key dismissal shares the exact same "dismissed without choosing"
+// semantics as clicking the backdrop, including firing the sheet's onClose.
+function closeTopModalViaEscape() {
+  const layer = topModalLayer();
+  if (!layer) return false;
+  const cb = modalOnCloseCb[layer]; modalOnCloseCb[layer] = null;
+  closeModalLayer(layer);
+  if (cb) cb();
+  return true;
+}
+// Keeps exactly one "layer" interactive at a time — background app chrome is
+// inert while the reader is open, the reader is inert while a sheet is open
+// over it, and the modalRoot sheet is inert while modalRoot2 is stacked on
+// top of it (e.g. a password prompt over the upload list). Without this,
+// Tab could reach controls that were only hidden behind an opaque overlay,
+// and keyboard/screen-reader focus could leak straight through open dialogs
+// into the page behind them (confirmed via automated keyboard-nav testing).
+// Checks mere presence of the backdrop node rather than its .active class,
+// since .active is added a frame later (for the slide-up transition) and
+// removed a frame before the node is actually taken out of the DOM (for the
+// slide-down transition) — presence is the accurate signal at both ends.
+function refreshLayering() {
+  const readerActive = document.getElementById("view-reader").classList.contains("active");
+  const modal1Open = !!document.querySelector("#modalRoot .modal-backdrop");
+  const modal2Open = !!document.querySelector("#modalRoot2 .modal-backdrop");
+  const chromeInert = readerActive || modal1Open || modal2Open;
+  document.getElementById("topbar").inert = chromeInert;
+  document.querySelector("main").inert = chromeInert;
+  document.getElementById("bottomNav").inert = chromeInert;
+  document.getElementById("fabUpload").inert = chromeInert;
+  document.getElementById("view-reader").inert = modal1Open || modal2Open;
+  document.getElementById("modalRoot").inert = modal2Open;
+}
 
 function askPasswordModal(fileName, wasWrong) {
   return new Promise((resolve) => {
     const root = openSheet(`
       <h2>Password needed</h2>
       <p class="sheet-sub">${wasWrong ? "That password didn't work — try again for" : "This archive is protected. Enter the password for"} <b>${escapeHTML(fileName)}</b>.</p>
-      <div class="field"><label>Password</label><input type="password" id="pwInput" autocomplete="off"></div>
+      <div class="field"><label for="pwInput">Password</label><input type="password" id="pwInput" autocomplete="off"></div>
       <div class="sheet-actions">
         <button class="btn btn-ghost" id="pwCancel">Skip file</button>
         <button class="btn btn-primary" id="pwOk">Unlock</button>
       </div>
     `, { layer: "modalRoot2", onClose: () => resolve(null) });
     const input = root.querySelector("#pwInput");
-    setTimeout(() => input.focus(), 50);
     const submit = () => { const v = input.value; closeModalLayer("modalRoot2"); resolve(v.length ? v : null); };
     root.querySelector("#pwOk").addEventListener("click", submit);
     root.querySelector("#pwCancel").addEventListener("click", () => { closeModalLayer("modalRoot2"); resolve(null); });
@@ -1117,12 +1255,12 @@ function confirmModal(title, body, confirmLabel = "Delete", danger = true) {
 function openAddSheet() {
   openSheet(`
     <h2>Add chapters</h2>
-    <p class="sheet-sub">Upload ZIP / CBZ (optionally password-protected) or PDF files. The series name and chapter number are read automatically from each file's name.</p>
-    <div class="dropzone" id="dropzone">
+    <p class="sheet-sub">Upload ZIP / CBZ (optionally password-protected) or PDF files. You'll be able to check or correct the detected series name and chapter number before anything is added.</p>
+    <button type="button" class="dropzone" id="dropzone">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5l5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
       <div class="dz-title">Tap to choose files</div>
       <div class="dz-sub">or drag them in here on desktop</div>
-    </div>
+    </button>
   `);
   const dz = document.getElementById("dropzone");
   dz.addEventListener("click", () => document.getElementById("fileInput").click());
@@ -1130,7 +1268,74 @@ function openAddSheet() {
   dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
   dz.addEventListener("drop", (e) => {
     e.preventDefault(); dz.classList.remove("drag");
-    if (e.dataTransfer.files.length) { closeModal(); handleFiles(e.dataTransfer.files); }
+    if (e.dataTransfer.files.length) { closeModal(); openReviewSheet(e.dataTransfer.files); }
+  });
+}
+function openReviewSheet(fileList) {
+  const files = Array.from(fileList)
+    .filter((f) => /\.(zip|cbz|pdf)$/i.test(f.name))
+    .sort((a, b) => naturalCompare(a.name, b.name));
+  if (!files.length) { toast("Choose a .zip, .cbz or .pdf file"); return; }
+
+  const lib = loadLibrary();
+  const existingNames = Object.values(lib.series).map((s) => s.name);
+  const datalistHTML = `<datalist id="reviewSeriesOptions">${existingNames.map((n) => `<option value="${escapeHTML(n)}">`).join("")}</datalist>`;
+  const parsedList = files.map((f) => parseFileName(f.name));
+
+  const rows = files.map((f, i) => `
+    <div class="review-item" data-idx="${i}">
+      <div class="u-icon">${fileIconSVG(f.name)}</div>
+      <div class="review-fields">
+        <div class="review-filename">${escapeHTML(f.name)}</div>
+        <div class="review-inputs">
+          <div class="field">
+            <label for="reviewSeries${i}">Series</label>
+            <input type="text" id="reviewSeries${i}" class="review-series" list="reviewSeriesOptions" value="${escapeHTML(parsedList[i].series)}">
+          </div>
+          <div class="field field-chapter">
+            <label for="reviewChapter${i}">Ch. #</label>
+            <input type="number" id="reviewChapter${i}" class="review-chapter" step="any" inputmode="decimal" value="${parsedList[i].chapterNumber}">
+          </div>
+        </div>
+        <div class="review-hint" data-hint aria-live="polite"></div>
+      </div>
+    </div>`).join("");
+
+  openSheet(`
+    <h2>Add chapters</h2>
+    <p class="sheet-sub">Detected from ${files.length} file name${files.length === 1 ? "" : "s"} — edit anything that looks wrong before adding.</p>
+    ${datalistHTML}
+    <div class="review-list">${rows}</div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" id="reviewCancel">Cancel</button>
+      <button class="btn btn-primary" id="reviewGo">Add ${files.length} chapter${files.length === 1 ? "" : "s"}</button>
+    </div>
+  `);
+
+  const updateHint = (row) => {
+    const hintEl = row.querySelector("[data-hint]");
+    const seriesName = row.querySelector(".review-series").value.trim();
+    if (!seriesName) { hintEl.textContent = ""; hintEl.classList.remove("is-existing"); return; }
+    const match = lib.series[slugify(seriesName)];
+    if (match) { hintEl.textContent = `Adding to existing series "${match.name}"`; hintEl.classList.add("is-existing"); }
+    else { hintEl.textContent = "New series"; hintEl.classList.remove("is-existing"); }
+  };
+  document.querySelectorAll(".review-item").forEach((row) => {
+    updateHint(row);
+    row.querySelector(".review-series").addEventListener("input", () => updateHint(row));
+  });
+
+  document.getElementById("reviewCancel").addEventListener("click", closeModal);
+  document.getElementById("reviewGo").addEventListener("click", () => {
+    const overrides = new Map();
+    document.querySelectorAll(".review-item").forEach((row) => {
+      const idx = Number(row.dataset.idx);
+      const seriesName = row.querySelector(".review-series").value.trim() || "Untitled";
+      const chNumRaw = parseFloat(row.querySelector(".review-chapter").value);
+      overrides.set(files[idx], { series: seriesName, chapterNumber: Number.isNaN(chNumRaw) ? 0 : chNumRaw });
+    });
+    closeModal();
+    handleFiles(files, overrides);
   });
 }
 function openUploadSheet(files) {
@@ -1146,7 +1351,7 @@ function openUploadSheet(files) {
   openSheet(`
     <h2>Adding chapters</h2>
     <p class="sheet-sub">Reading each file's name to sort it into a series and chapter number.</p>
-    <div class="upload-list">${rows}</div>
+    <div class="upload-list" role="status" aria-live="polite">${rows}</div>
     <div class="sheet-actions"><button class="btn btn-secondary btn-block" id="uploadCloseBtn">Close</button></div>
   `);
   document.getElementById("uploadCloseBtn").addEventListener("click", closeModal);
@@ -1168,17 +1373,17 @@ function openExportSheet(target) {
   openSheet(`
     <h2>Export ${target.type === "chapter" ? "chapter" : "series"}</h2>
     <p class="sheet-sub">Repack ${label} into a downloadable .zip. Leave the password blank for a normal, unprotected archive.</p>
-    <div class="field"><label>Password (optional)</label><input type="password" id="exportPw" placeholder="Leave blank for no password" autocomplete="off"></div>
+    <div class="field"><label for="exportPw">Password (optional)</label><input type="password" id="exportPw" placeholder="Leave blank for no password" autocomplete="off"></div>
     <div class="sheet-actions">
       <button class="btn btn-ghost" id="exCancel">Cancel</button>
       <button class="btn btn-primary" id="exGo">Export</button>
     </div>
   `);
   document.getElementById("exCancel").addEventListener("click", closeModal);
-  document.getElementById("exGo").addEventListener("click", async () => {
+  const exGo = document.getElementById("exGo");
+  const runExport = async () => {
     const pw = document.getElementById("exportPw").value;
-    const btn = document.getElementById("exGo");
-    btn.disabled = true; btn.textContent = "Zipping…";
+    exGo.disabled = true; exGo.textContent = "Zipping…";
     try {
       if (target.type === "chapter") await exportChapterZip(target.id, pw || undefined);
       else await exportSeriesZip(target.id, pw || undefined);
@@ -1186,10 +1391,12 @@ function openExportSheet(target) {
       closeModal();
     } catch (err) {
       console.error(err);
-      btn.disabled = false; btn.textContent = "Export";
+      exGo.disabled = false; exGo.textContent = "Export";
       toast("Export failed — see console");
     }
-  });
+  };
+  exGo.addEventListener("click", runExport);
+  document.getElementById("exportPw").addEventListener("keydown", (e) => { if (e.key === "Enter") runExport(); });
 }
 function openSeriesMenu(seriesId) {
   const lib = loadLibrary();
@@ -1216,14 +1423,14 @@ function openRenameSheet(seriesId) {
   if (!series) return;
   openSheet(`
     <h2>Rename series</h2>
-    <div class="field"><label>Series name</label><input type="text" id="renameInput" value="${escapeHTML(series.name)}"></div>
+    <div class="field"><label for="renameInput">Series name</label><input type="text" id="renameInput" value="${escapeHTML(series.name)}"></div>
     <div class="sheet-actions">
       <button class="btn btn-ghost" id="renameCancel">Cancel</button>
       <button class="btn btn-primary" id="renameOk">Save</button>
     </div>
   `);
   document.getElementById("renameCancel").addEventListener("click", closeModal);
-  document.getElementById("renameOk").addEventListener("click", () => {
+  const submitRename = () => {
     const name = document.getElementById("renameInput").value.trim();
     if (name) {
       const l = loadLibrary();
@@ -1234,7 +1441,9 @@ function openRenameSheet(seriesId) {
       toast("Renamed");
     }
     closeModal();
-  });
+  };
+  document.getElementById("renameOk").addEventListener("click", submitRename);
+  document.getElementById("renameInput").addEventListener("keydown", (e) => { if (e.key === "Enter") submitRename(); });
 }
 function openChapterMenu(chapterId) {
   const lib = loadLibrary();
@@ -1260,14 +1469,26 @@ function openChapterMenu(chapterId) {
   document.getElementById("mDelete").addEventListener("click", async () => {
     closeModal();
     const ok = await confirmModal("Delete this chapter?", `This removes “${escapeHTML(ch.rawName)}” and its pages from this device. This can't be undone.`, "Delete");
-    if (ok) { await deleteChapterFully(chapterId); toast("Chapter deleted"); renderSeries(ch.seriesId); }
+    if (!ok) return;
+    await deleteChapterFully(chapterId);
+    if (chaptersForSeries(ch.seriesId).length) {
+      toast("Chapter deleted");
+      renderSeries(ch.seriesId);
+    } else {
+      // That was the series' last chapter — an empty series has no cover,
+      // nothing to read, and nothing to export, so remove it too rather
+      // than leaving a dead entry sitting in the library.
+      await deleteSeriesFully(ch.seriesId);
+      toast("Chapter deleted — series removed");
+      showView("library");
+    }
   });
 }
 
 /* ============================================================
    UPLOAD ORCHESTRATION
    ============================================================ */
-async function handleFiles(fileList) {
+async function handleFiles(fileList, overrides) {
   const files = Array.from(fileList)
     .filter((f) => /\.(zip|cbz|pdf)$/i.test(f.name))
     // Read each file's name up front and sort the whole batch into ascending
@@ -1289,11 +1510,16 @@ async function handleFiles(fileList) {
           update(file, { status: `Rendering page ${done} of ${total}…`, progress: 35 + Math.round((done / total) * 55) });
         });
       } else {
-        pageBlobs = await extractZipFile(file, (name, wrong) => askPasswordModal(name, wrong));
+        pageBlobs = await extractZipFile(file, (name, wrong) => askPasswordModal(name, wrong), (done, total) => {
+          update(file, { status: `Extracting page ${done} of ${total}…`, progress: 15 + Math.round((done / total) * 55) });
+        });
       }
       if (!pageBlobs.length) throw new Error("No pages found in this file.");
       update(file, { status: `Saving ${pageBlobs.length} pages…`, progress: 75 });
-      const parsed = parseFileName(file.name);
+      // Prefer the (possibly hand-corrected) series/chapter from the review
+      // sheet; fall back to the automatic filename guess if this file has
+      // no override, e.g. when handleFiles is invoked directly.
+      const parsed = (overrides && overrides.get(file)) || parseFileName(file.name);
       const seriesId = slugify(parsed.series);
       const chapterId = `${seriesId}::${parsed.chapterNumber}`;
       await saveChapterToLibrary({ seriesId, seriesName: parsed.series, chapterId, chapterNumber: parsed.chapterNumber, rawName: file.name, pageBlobs });
@@ -1417,20 +1643,22 @@ async function renderSeries(seriesId) {
     const chProg = seriesProg && seriesProg.chapters ? seriesProg.chapters[ch.id] : null;
     const isCurrent = seriesProg && seriesProg.lastChapterId === ch.id;
     const pct = chProg ? Math.min(100, Math.round((chProg.page / (ch.pageCount || 1)) * 100)) : 0;
-    const row = document.createElement("button");
+    const row = document.createElement("div");
     row.className = "chapter-row" + (chProg && chProg.done ? " is-read" : "") + (isCurrent ? " is-current" : "");
     row.innerHTML = `
-      <div class="chapter-num">${formatChNum(ch.number)}</div>
-      <div class="chapter-info">
-        <div class="name">${escapeHTML(ch.rawName)}</div>
-        <div class="meta">${ch.pageCount} pages${chProg && chProg.done ? " · read" : (chProg ? ` · p.${chProg.page}/${ch.pageCount}` : "")}</div>
-        <div class="chapter-progress-track"><div class="chapter-progress-fill" style="width:${chProg && chProg.done ? 100 : pct}%"></div></div>
-      </div>
-      <span class="icon-btn chapter-menu-btn" role="button" aria-label="Chapter options">
+      <button class="chapter-row-main" type="button">
+        <div class="chapter-num">${formatChNum(ch.number)}</div>
+        <div class="chapter-info">
+          <div class="name">${escapeHTML(ch.rawName)}</div>
+          <div class="meta">${ch.pageCount} pages${chProg && chProg.done ? " · read" : (chProg ? ` · p.${chProg.page}/${ch.pageCount}` : "")}</div>
+          <div class="chapter-progress-track"><div class="chapter-progress-fill" style="width:${chProg && chProg.done ? 100 : pct}%"></div></div>
+        </div>
+      </button>
+      <button class="icon-btn chapter-menu-btn" type="button" aria-label="Options for chapter ${escapeHTML(formatChNum(ch.number))}">
         <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
-      </span>`;
+      </button>`;
     row.querySelector(".chapter-menu-btn").addEventListener("click", (e) => { e.stopPropagation(); openChapterMenu(ch.id); });
-    row.addEventListener("click", () => openReader(seriesId, ch.id, chProg ? chProg.page : 1));
+    row.querySelector(".chapter-row-main").addEventListener("click", () => openReader(seriesId, ch.id, chProg ? chProg.page : 1));
     list.appendChild(row);
   });
 
@@ -1455,7 +1683,12 @@ function showReaderLoading(v, text) {
   el.style.display = v ? "flex" : "none";
   if (text) document.getElementById("readerLoadingText").textContent = text;
 }
-function showChrome(v) { chromeVisible = v; document.getElementById("readerChrome").classList.toggle("hidden", !v); }
+function showChrome(v) {
+  chromeVisible = v;
+  const chrome = document.getElementById("readerChrome");
+  chrome.classList.toggle("hidden", !v);
+  chrome.inert = !v;
+}
 function toggleChrome() { showChrome(!chromeVisible); }
 function revokeReaderURLs() { readerState.pageURLs.forEach((u) => URL.revokeObjectURL(u)); readerState.pageURLs = []; }
 function applyReaderMode() {
@@ -1501,10 +1734,12 @@ function renderReaderContent() {
   const vp = document.getElementById("reader-viewport");
   vp.innerHTML = "";
   applyReaderMode();
+  const total = readerState.pageURLs.length;
   if (readerState.mode === "paged") {
     const img = document.createElement("img");
     img.className = "reader-page"; img.id = "pagedImg";
     img.src = readerState.pageURLs[readerState.index];
+    img.alt = `Page ${readerState.index + 1} of ${total}`;
     img.draggable = false;
     vp.appendChild(img);
   } else {
@@ -1513,6 +1748,7 @@ function renderReaderContent() {
       img.className = "reader-page";
       img.dataset.idx = String(i);
       img.src = url;
+      img.alt = `Page ${i + 1} of ${total}`;
       img.loading = Math.abs(i - readerState.index) < 3 ? "eager" : "lazy";
       img.draggable = false;
       vp.appendChild(img);
@@ -1551,9 +1787,11 @@ function nextPage() {
     readerState.index++;
     const img = document.getElementById("pagedImg");
     img.src = readerState.pageURLs[readerState.index];
+    img.alt = `Page ${readerState.index + 1} of ${readerState.pageURLs.length}`;
     img.classList.remove("zoomed");
     updateReaderChrome(); saveProgressDebounced();
-  } else {
+  } else if (!chapterEndTriggered) {
+    chapterEndTriggered = true;
     handleChapterEnd();
   }
 }
@@ -1562,6 +1800,7 @@ function prevPage() {
     readerState.index--;
     const img = document.getElementById("pagedImg");
     img.src = readerState.pageURLs[readerState.index];
+    img.alt = `Page ${readerState.index + 1} of ${readerState.pageURLs.length}`;
     img.classList.remove("zoomed");
     updateReaderChrome(); saveProgressDebounced();
   } else {
@@ -1569,11 +1808,15 @@ function prevPage() {
     if (p) openReader(readerState.seriesId, p.id, Infinity);
   }
 }
+function setReaderActive(active) {
+  document.getElementById("view-reader").classList.toggle("active", active);
+  refreshLayering();
+}
 async function openReader(seriesId, chapterId, startPage) {
   const lib = loadLibrary();
   const chapter = lib.chapters[chapterId];
   if (!chapter) { toast("Chapter not found"); return; }
-  document.getElementById("view-reader").classList.add("active");
+  setReaderActive(true);
   showReaderLoading(true, "Opening chapter…");
   showChrome(true);
   revokeReaderURLs();
@@ -1586,13 +1829,13 @@ async function openReader(seriesId, chapterId, startPage) {
     console.error(err);
     toast("Could not load this chapter");
     showReaderLoading(false);
-    document.getElementById("view-reader").classList.remove("active");
+    setReaderActive(false);
     return;
   }
   if (!pages.length) {
     toast("This chapter has no pages");
     showReaderLoading(false);
-    document.getElementById("view-reader").classList.remove("active");
+    setReaderActive(false);
     return;
   }
   readerState.seriesId = seriesId;
@@ -1606,7 +1849,7 @@ async function openReader(seriesId, chapterId, startPage) {
 }
 function closeReader() {
   saveProgressNow();
-  document.getElementById("view-reader").classList.remove("active");
+  setReaderActive(false);
   revokeReaderURLs();
   if (vObserver) { vObserver.disconnect(); vObserver = null; }
   showView("series");
@@ -1622,7 +1865,10 @@ function showView(name) {
   document.getElementById("bottomNav").style.display = name === "series" ? "none" : "flex";
   document.getElementById("fabUpload").style.display = name === "library" ? "flex" : "none";
   document.querySelectorAll(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.nav === name));
-  if (name === "library") document.getElementById("searchBar").style.display = "none";
+  if (name === "library") {
+    document.getElementById("searchBar").style.display = "none";
+    document.getElementById("searchInput").value = "";
+  }
   window.scrollTo(0, 0);
   if (name === "library") renderLibrary();
   if (name === "series") renderSeries(state.seriesId);
@@ -1636,15 +1882,24 @@ function applyTheme(choice) {
   localStorage.setItem(LS.theme, choice);
   const effective = choice === "system" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : choice;
   document.documentElement.setAttribute("data-theme", effective);
-  document.querySelectorAll("#themeSeg button").forEach((b) => b.classList.toggle("active", b.dataset.themeChoice === choice));
+  document.querySelectorAll("#themeSeg button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.themeChoice === choice);
+    b.setAttribute("aria-pressed", String(b.dataset.themeChoice === choice));
+  });
   const meta = document.querySelector('meta[name="theme-color"]');
   meta.setAttribute("content", effective === "dark" ? "#121014" : "#F1ECE1");
 }
 async function refreshSettingsUI() {
   const theme = localStorage.getItem(LS.theme) || "system";
-  document.querySelectorAll("#themeSeg button").forEach((b) => b.classList.toggle("active", b.dataset.themeChoice === theme));
+  document.querySelectorAll("#themeSeg button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.themeChoice === theme);
+    b.setAttribute("aria-pressed", String(b.dataset.themeChoice === theme));
+  });
   const mode = localStorage.getItem(LS.mode) || DEFAULT_MODE;
-  document.querySelectorAll("#modeSeg button").forEach((b) => b.classList.toggle("active", b.dataset.modeChoice === mode));
+  document.querySelectorAll("#modeSeg button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.modeChoice === mode);
+    b.setAttribute("aria-pressed", String(b.dataset.modeChoice === mode));
+  });
   document.getElementById("autoAdvanceToggle").checked = localStorage.getItem(LS.autoAdvance) === "1";
   if (navigator.storage && navigator.storage.estimate) {
     try {
@@ -1661,6 +1916,8 @@ async function refreshSettingsUI() {
    INIT
    ============================================================ */
 function init() {
+  document.getElementById("appVersionTag").textContent = `v${APP_VERSION}`;
+  document.getElementById("aboutVersion").textContent = `v${APP_VERSION}`;
   const savedTheme = localStorage.getItem(LS.theme) || "system";
   applyTheme(savedTheme);
   matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
@@ -1671,7 +1928,7 @@ function init() {
   document.getElementById("backBtn").addEventListener("click", () => showView("library"));
   document.getElementById("fabUpload").addEventListener("click", openAddSheet);
   document.getElementById("fileInput").addEventListener("change", (e) => {
-    if (e.target.files.length) { closeModal(); handleFiles(e.target.files); }
+    if (e.target.files.length) { closeModal(); openReviewSheet(e.target.files); }
     e.target.value = "";
   });
   document.getElementById("searchBtn").addEventListener("click", () => {
@@ -1691,7 +1948,10 @@ function init() {
     const btn = e.target.closest("button[data-mode-choice]");
     if (!btn) return;
     localStorage.setItem(LS.mode, btn.dataset.modeChoice);
-    document.querySelectorAll("#modeSeg button").forEach((b) => b.classList.toggle("active", b === btn));
+    document.querySelectorAll("#modeSeg button").forEach((b) => {
+      b.classList.toggle("active", b === btn);
+      b.setAttribute("aria-pressed", String(b === btn));
+    });
     if (readerState.chapter) { readerState.mode = btn.dataset.modeChoice; renderReaderContent(); }
   });
   document.getElementById("autoAdvanceToggle").addEventListener("change", (e) => {
@@ -1725,6 +1985,7 @@ function init() {
     if (readerState.mode === "paged") {
       const img = document.getElementById("pagedImg");
       img.src = readerState.pageURLs[v];
+      img.alt = `Page ${v + 1} of ${readerState.pageURLs.length}`;
       img.classList.remove("zoomed");
     } else {
       const vp = document.getElementById("reader-viewport");
@@ -1746,9 +2007,9 @@ function init() {
   document.getElementById("zNext").addEventListener("click", () => { readerState.mode === "paged" ? nextPage() : scrollVerticalBy(0.85); });
   document.getElementById("zMid").addEventListener("click", () => {
     const now = Date.now();
-    if (now - lastMidTap < 300) {
+    if (now - lastMidTap < 300 && midTapTimer) {
       lastMidTap = 0;
-      if (midTapTimer) { clearTimeout(midTapTimer); midTapTimer = null; }
+      clearTimeout(midTapTimer); midTapTimer = null;
       if (readerState.mode === "paged") { const img = document.getElementById("pagedImg"); if (img) img.classList.toggle("zoomed"); }
       return;
     }
@@ -1761,13 +2022,22 @@ function init() {
     if (vp.scrollTop + vp.clientHeight >= vp.scrollHeight - 4) { chapterEndTriggered = true; handleChapterEnd(); }
   });
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (closeTopModalViaEscape()) return;
+      if (document.getElementById("view-reader").classList.contains("active")) closeReader();
+      return;
+    }
+    if (topModalLayer()) return; // a dialog is open — let it handle its own keys
     if (!document.getElementById("view-reader").classList.contains("active")) return;
     if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); readerState.mode === "paged" ? nextPage() : scrollVerticalBy(0.85); }
     else if (e.key === "ArrowLeft") { readerState.mode === "paged" ? prevPage() : scrollVerticalBy(-0.85); }
-    else if (e.key === "Escape") closeReader();
   });
 
-  if (typeof zip !== "undefined" && zip.configure) zip.configure({ useWebWorkers: false });
+  // Web workers ON (this is zip.js's own default — do not disable). Turning
+  // them off forces every page of every archive to decompress one at a time
+  // on the main thread instead of in parallel across a worker pool, which
+  // was the single biggest contributor to slow uploads.
+  if (typeof zip !== "undefined" && zip.configure) zip.configure({ useWebWorkers: true });
 
   showView("library");
 
